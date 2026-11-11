@@ -1,0 +1,44 @@
+{
+  "schema_version": "satan.repository.v1",
+  "system": "Satan",
+  "engine_version": "0.1.0",
+  "repository": "bboroski/9circ",
+  "profile": "docs-only",
+  "role": "Documentation-only member; currently contains README.md",
+  "expected_languages": [
+    "Markdown"
+  ],
+  "quality_expectations": {
+    "require_readme": true,
+    "require_license": false,
+    "require_ci": false,
+    "require_tests": false
+  },
+  "exclude_paths": [
+    ".satan-core",
+    "third_party",
+    "vendor",
+    "node_modules",
+    "dist",
+    "build",
+    "target"
+  ],
+  "automation": {
+    "mode": "observe-only",
+    "auto_heal": {
+      "enabled": false,
+      "mode": "proposal-only",
+      "path_allowlist": []
+    },
+    "dependency_updates": {
+      "enabled": false,
+      "mode": "report-only"
+    },
+    "code_generation": {
+      "enabled": false,
+      "mode": "proposal-only"
+    },
+    "auto_merge": false,
+    "deployments": false
+  }
+}

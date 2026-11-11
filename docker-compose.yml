@@ -23,21 +23,18 @@ services:
       - "6334:6334"
     volumes:
       - qdrant-data:/qdrant/storage
-    healthcheck:
-      test: ["CMD", "/bin/sh", "-c", "wget -q -O /dev/null http://127.0.0.1:6333/healthz"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
 
   redis:
     image: redis:7.4-alpine
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-dev-only-change-me}
     command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:-dev-only-change-me}"]
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a dev-only-change-me ping | grep -q PONG"]
+      test: ["CMD-SHELL", "redis-cli -a "$$REDIS_PASSWORD" ping | grep -q PONG"]
       interval: 5s
       timeout: 3s
       retries: 20

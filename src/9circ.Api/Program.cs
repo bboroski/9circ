@@ -18,8 +18,10 @@ app.MapPost("/api/v1/clusters", (ClusterRequest request) =>
         return Results.BadRequest(new { error = "Values must be a non-empty row-major matrix divisible by dimensions." });
 
     var pointCount = request.Values.Length / request.Dimensions;
-    if (pointCount > 100_000 || request.Dimensions > 4096)
-        return Results.BadRequest(new { error = "Request exceeds configured safety limits." });
+    var estimatedPairAxisOperations = (long)pointCount * pointCount * request.Dimensions;
+    if (pointCount > 100_000 || request.Dimensions > 4096 ||
+        request.Values.Length > 2_000_000 || estimatedPairAxisOperations > 100_000_000)
+        return Results.BadRequest(new { error = "Request exceeds configured safety or compute-budget limits." });
 
     var labels = ArrayPool<int>.Shared.Rent(pointCount);
     var visited = ArrayPool<byte>.Shared.Rent(pointCount);

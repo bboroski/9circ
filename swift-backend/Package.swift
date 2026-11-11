@@ -12,13 +12,13 @@ let package = Package(
         .package(url: "https://github.com/vapor/vapor.git", from: "4.110.0")
     ],
     targets: [
-        .target(name: "NineCircBackendCore"),
+        .target(
+            name: "NineCircBackendCore",
+            dependencies: [.product(name: "Vapor", package: "vapor")]
+        ),
         .executableTarget(
             name: "NineCircServer",
-            dependencies: [
-                "NineCircBackendCore",
-                .product(name: "Vapor", package: "vapor")
-            ]
+            dependencies: ["NineCircBackendCore", .product(name: "Vapor", package: "vapor")]
         ),
         .testTarget(name: "NineCircBackendCoreTests", dependencies: ["NineCircBackendCore"])
     ],

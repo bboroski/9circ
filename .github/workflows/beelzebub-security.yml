@@ -16,6 +16,6 @@ concurrency:
 
 jobs:
   audit:
-    uses: bboroski/Luci/.github/workflows/beelzebub-reusable.yml@cdd00dc11891452c21d96a1770c80124c95cf55a
+    uses: bboroski/Hellduck/.github/workflows/beelzebub-reusable.yml@3a14ba22fb6008fed79203ef85290f784b09771b
     permissions:
       contents: read

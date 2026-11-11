@@ -1,0 +1,21 @@
+name: Beelzebub Security
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beelzebub-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    uses: bboroski/Hellduck/.github/workflows/beelzebub-reusable.yml@3a14ba22fb6008fed79203ef85290f784b09771b
+    permissions:
+      contents: read

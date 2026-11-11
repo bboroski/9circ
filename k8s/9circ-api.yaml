@@ -30,7 +30,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: api
-          image: ghcr.io/your-org/9circ-api:replace-with-release-tag
+          image: ghcr.io/bboroski/9circ-api:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

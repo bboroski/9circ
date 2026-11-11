@@ -1,4 +1,3 @@
-using System.Text;
 using NineCirc.Core.Storage;
 
 namespace NineCirc.Core.Corpus;
@@ -83,7 +82,7 @@ public sealed class CorpusPipeline(
     {
         var filtered = input.Where(character =>
             !char.IsControl(character) || character is '\n' or '\r' or '\t').ToArray();
-        return string.Join(' ', new string(filtered).Split(
+        return string.Join(" ", new string(filtered).Split(
             (char[]?)null, StringSplitOptions.RemoveEmptyEntries));
     }
 
@@ -91,6 +90,6 @@ public sealed class CorpusPipeline(
     {
         var tokens = content.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         for (var start = 0; start < tokens.Length; start += maximumTokens)
-            yield return string.Join(' ', tokens.Skip(start).Take(maximumTokens));
+            yield return string.Join(" ", tokens.Skip(start).Take(maximumTokens));
     }
 }

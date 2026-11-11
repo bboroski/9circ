@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "system": "Satan",
+  "role": "managed-repository-node",
+  "canonical_repository": "bboroski/SAMBU",
+  "canonical_package": "sambu.satan",
+  "protocol_profile": "qegm-gossip-envelope-v1",
+  "branch": "feature/satan-qegm-autonomous-core",
+  "adapter_status": "declarative-only",
+  "capabilities": ["repository-registration", "signed-event-consumption", "threat-memory-client", "dependency-impact-reporting"],
+  "security": {
+    "credentials_committed": false,
+    "network_listener_enabled": false,
+    "automatic_merge": false,
+    "automatic_production_deploy": false,
+    "protected_changes_require_human_approval": true
+  },
+  "next_step": "Implement and test a repository-specific adapter after language, entry points, and CI have been inspected."
+}

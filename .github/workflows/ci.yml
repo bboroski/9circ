@@ -61,7 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ruby -e 'require "./modules/lifecycle-ruby/lib/ninecirc/ipc_header"; h = NineCirc::IPCHeader.encode(type: 7, sequence: 42, payload_length: 128, crc32: 99, monotonic_nanoseconds: 123); abort "bad header" unless h.bytesize == 32 && NineCirc::IPCHeader.decode(h)[:sequence] == 42'
+      - run: |
+          ruby -e 'require "./modules/lifecycle-ruby/lib/ninecirc/ipc_header"; h = NineCirc::IPCHeader.encode(type: 7, sequence: 42, payload_length: 128, crc32: 99, monotonic_nanoseconds: 123); abort "bad header" unless h.bytesize == 32 && NineCirc::IPCHeader.decode(h)[:sequence] == 42'
 
   integration-stack:
     name: integration-stack
@@ -71,7 +72,13 @@ jobs:
       - run: docker compose up -d --wait
       - run: docker compose exec -T postgres pg_isready -U ninecirc -d ninecirc
       - run: docker compose exec -T redis redis-cli -a 'dev-only-change-me' ping
-      - run: curl --fail http://localhost:6333/healthz
+      - run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://localhost:6333/healthz; then exit 0; fi
+            sleep 2
+          done
+          echo "Qdrant did not become ready" >&2
+          exit 1
       - if: always()
         run: docker compose down -v
 

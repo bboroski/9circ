@@ -1,6 +1,7 @@
 import Foundation
+import Vapor
 
-public struct HealthStatus: Codable, Sendable, Equatable {
+public struct HealthStatus: Content, Sendable, Equatable {
     public let service: String
     public let status: String
     public let version: String

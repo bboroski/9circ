@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "repository": "bboroski/9circ",
+  "optimization_method": "four-vector",
+  "status": "baseline_pending",
+  "implementation_status": "profile_added",
+  "product_role": "discovery-required",
+  "detected_stack": "unknown",
+  "vectors": {
+    "physics": {
+      "focus": "latency-throughput-resource-cost",
+      "metrics": [
+        "not_assessed"
+      ],
+      "baseline": "not_measured"
+    },
+    "biology": {
+      "focus": "bounded-resource-lifecycle-and-feedback",
+      "controls": [
+        "not_assessed"
+      ],
+      "baseline": "not_measured"
+    },
+    "technology": {
+      "focus": "modularity-contracts-security",
+      "boundaries": [
+        "scope_not_established"
+      ]
+    },
+    "sambo": {
+      "focus": "reuse-leverage-and-safe-deferral",
+      "strategies": [
+        "not_assessed"
+      ]
+    }
+  },
+  "verification": {
+    "commands": [
+      "not_assessed"
+    ],
+    "results": "not_run_in_this_change"
+  },
+  "guardrails": [
+    "Do not infer runtime capabilities or invent a build system"
+  ],
+  "acceptance": [
+    "baseline recorded on a named platform",
+    "no unbounded queues caches retries or loops",
+    "errors and partial results remain explicit",
+    "public contracts remain compatible or are versioned",
+    "performance claims have before-after evidence"
+  ],
+  "updated_at": "2026-11-11"
+}

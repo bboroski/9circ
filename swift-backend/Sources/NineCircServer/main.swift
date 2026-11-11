@@ -5,8 +5,7 @@ import NineCircBackendCore
 @main
 enum NineCircServer {
     static func main() async throws {
-        let environment = Environment.detect()
-        let app = try await Application.make(environment)
+        let app = try await Application.make(.detect())
 
         do {
             let port = Int(Environment.get("PORT") ?? "8080") ?? 8080

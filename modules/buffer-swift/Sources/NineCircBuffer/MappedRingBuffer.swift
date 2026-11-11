@@ -7,6 +7,7 @@ import Darwin
 
 public enum RingBufferError: Error {
     case invalidCapacity
+    case invalidTransferCount
     case systemCallFailed(String)
 }
 
@@ -46,6 +47,50 @@ public final class MappedRingBuffer: @unchecked Sendable {
     deinit {
         _ = munmap(mapping, capacity)
         _ = close(descriptor)
+    }
+
+    /// Gives the caller a direct view of the next contiguous writable mmap segment.
+    /// The closure must not retain the pointer or re-enter this ring buffer.
+    /// Returns the closure result and the number of bytes committed.
+    public func withWritableSegment<T>(
+        _ body: (UnsafeMutableRawBufferPointer) throws -> (T, Int)
+    ) throws -> T {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let contiguous = min(capacity - available, capacity - writeIndex)
+        let segment = UnsafeMutableRawBufferPointer(
+            start: mapping.advanced(by: writeIndex), count: contiguous)
+        let (result, committed) = try body(segment)
+        guard committed >= 0 && committed <= contiguous else {
+            throw RingBufferError.invalidTransferCount
+        }
+
+        writeIndex = (writeIndex + committed) % capacity
+        available += committed
+        return result
+    }
+
+    /// Gives the caller a direct read-only view of the next contiguous mmap segment.
+    /// The closure must not retain the pointer or re-enter this ring buffer.
+    /// Returns the closure result and the number of bytes consumed.
+    public func withReadableSegment<T>(
+        _ body: (UnsafeRawBufferPointer) throws -> (T, Int)
+    ) throws -> T {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let contiguous = min(available, capacity - readIndex)
+        let segment = UnsafeRawBufferPointer(
+            start: mapping.advanced(by: readIndex), count: contiguous)
+        let (result, consumed) = try body(segment)
+        guard consumed >= 0 && consumed <= contiguous else {
+            throw RingBufferError.invalidTransferCount
+        }
+
+        readIndex = (readIndex + consumed) % capacity
+        available -= consumed
+        return result
     }
 
     /// Writes as many bytes as fit. The input remains owned by the caller.

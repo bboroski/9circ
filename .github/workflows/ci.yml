@@ -1,0 +1,49 @@
+name: 9circ CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-and-hosts:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Swift
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "6.0"
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+      - name: Build native ABI
+        run: swift build --package-path swift -c release --product ninecirc_core
+      - name: Run Swift tests
+        run: swift test --package-path swift
+      - name: Configure native loader
+        run: echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/swift/.build/release:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+      - name: Configure Ruby native library
+        run: echo "NINECIRC_NATIVE_LIBRARY=$GITHUB_WORKSPACE/swift/.build/release/libninecirc_core.so" >> "$GITHUB_ENV"
+      - name: Build C# host
+        run: dotnet build csharp/9circ/9circ.csproj --configuration Release
+      - name: Run C# ABI tests
+        run: dotnet run --project csharp/9circ.Tests/9circ.Tests.csproj --configuration Release
+      - name: Run C# CLI smoke test
+        run: dotnet run --project csharp/9circ/9circ.csproj --configuration Release -- scan README.md
+      - name: Run Ruby tests
+        run: ruby ruby/test/test_ninecirc.rb
+      - name: Run Ruby CLI smoke test
+        run: ruby ruby/bin/9circ scan README.md
+      - name: Run Swift CLI smoke test
+        run: swift run --package-path swift -c release 9circ-swift scan README.md

@@ -22,7 +22,8 @@ public static unsafe class Dbscan
     {
         if (pointCount < 0) throw new ArgumentOutOfRangeException(nameof(pointCount));
         if (dimensions <= 0) throw new ArgumentOutOfRangeException(nameof(dimensions));
-        if (points.Length < checked(pointCount * dimensions))
+        var requiredLength = checked(pointCount * dimensions);
+        if (points.Length < requiredLength)
             throw new ArgumentException("Input matrix is shorter than pointCount * dimensions.", nameof(points));
         if (!float.IsFinite(epsilon) || epsilon <= 0)
             throw new ArgumentOutOfRangeException(nameof(epsilon));
@@ -32,6 +33,9 @@ public static unsafe class Dbscan
             throw new ArgumentException("All workspace spans must contain at least pointCount elements.");
 
         if (pointCount == 0) return 0;
+        foreach (var value in points[..requiredLength])
+            if (!float.IsFinite(value))
+                throw new ArgumentException("Input coordinates must be finite.", nameof(points));
 
         labels = labels[..pointCount];
         visited = visited[..pointCount];
@@ -42,7 +46,7 @@ public static unsafe class Dbscan
         visited.Clear();
         queued.Clear();
 
-        var epsilonSquared = epsilon * epsilon;
+        var epsilonSquared = (double)epsilon * epsilon;
         var clusterId = 0;
 
         fixed (float* basePointer = points)
@@ -99,7 +103,7 @@ public static unsafe class Dbscan
 
     private static int CollectNeighbors(
         float* data, int count, int dimensions, int point,
-        float epsilonSquared, Span<int> destination, Span<byte> queued)
+        double epsilonSquared, Span<int> destination, Span<byte> queued)
     {
         var found = 0;
         var origin = data + (point * dimensions);
@@ -109,11 +113,11 @@ public static unsafe class Dbscan
             if (queued[candidate] != 0) continue;
 
             var other = data + (candidate * dimensions);
-            var distanceSquared = 0f;
+            double distanceSquared = 0;
 
             for (var axis = 0; axis < dimensions; axis++)
             {
-                var delta = origin[axis] - other[axis];
+                var delta = (double)origin[axis] - other[axis];
                 distanceSquared += delta * delta;
                 if (distanceSquared > epsilonSquared) break;
             }

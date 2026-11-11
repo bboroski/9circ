@@ -1,4 +1,5 @@
 using NineCirc.Core.Clustering;
+using NineCirc.Core.Creative;
 using NineCirc.Core.Ipc;
 using NineCirc.Core.Motivation;
 using NineCirc.Core.Scaling;
@@ -19,6 +20,17 @@ Check(count == 2, "DBSCAN finds two dense clusters");
 Check(labels[0] == labels[1] && labels[2] == labels[3], "DBSCAN groups nearby points");
 Check(labels[4] == Dbscan.Noise, "DBSCAN classifies isolated point as noise");
 
+var hierarchicalPoints = new float[] { 0f, 0f, 0.1f, 0.1f, 10f, 10f, 10.1f, 10.1f };
+var centroids = new float[hierarchicalPoints.Length];
+var sizes = new int[4];
+var hierarchicalLabels = new int[4];
+var active = new byte[4];
+var remap = new int[4];
+var hierarchicalCount = HierarchicalClustering.Cluster(
+    hierarchicalPoints, 4, 2, 2, centroids, sizes, hierarchicalLabels, active, remap);
+Check(hierarchicalCount == 2 && hierarchicalLabels[0] == hierarchicalLabels[1] &&
+      hierarchicalLabels[2] == hierarchicalLabels[3], "Hierarchical centroid clustering merges nearest groups");
+
 var matrix = new float[] { 1f, float.NaN, 3f, float.NaN, 5f, float.NaN };
 FeatureSpaceUpscaler.InterpolateMissing(matrix, 3, 2);
 Check(matrix.SequenceEqual(new float[] { 1f, 0f, 3f, 0f, 5f, 0f }), "Feature interpolation fills all-missing columns");
@@ -38,5 +50,14 @@ graph.AddDependency("cluster", "buffer", 0.4);
 graph.RecordExecution("cluster");
 graph.ApplyFeedback(new RuntimeFeedback(500, 0.2, 0.3, 0.01, 12));
 Check(graph.Snapshot().Length == 2 && graph.GetPriority("cluster") >= 0, "Motivation graph accepts bounded runtime feedback");
+var diagnostics = MotivationDiagnostics.Evaluate(graph.Snapshot(), 0.2, 0.3);
+Check(diagnostics.IsBalanced, "Motivation diagnostics accept healthy resource pressure");
+
+var source = new ParsedSource(SourceLanguage.CSharp, new[]
+{
+    new SyntaxDeclaration("method", "LoadA", 0, 20, "return cache lookup document"),
+    new SyntaxDeclaration("method", "LoadB", 21, 40, "return cache lookup document")
+});
+Check(CodeEvolutionPlanner.Suggest(source).Count == 1, "Creative planner emits review-only similarity proposals");
 
 Console.WriteLine("9circ smoke tests passed.");

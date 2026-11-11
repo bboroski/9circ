@@ -37,11 +37,31 @@ Check(matrix.SequenceEqual(new float[] { 1f, 0f, 3f, 0f, 5f, 0f }), "Feature int
 var vector = new float[] { 3f, 4f };
 Check(FeatureSpaceUpscaler.NormalizeL2(vector) && Math.Abs(vector[0] - 0.6f) < 0.0001f, "L2 normalization");
 
+var payload = new byte[] { 1, 2, 3, 4 };
 Span<byte> headerBytes = stackalloc byte[SharedMemoryProtocol.HeaderSize];
-var header = new IpcFrameHeader(1, 7, 42, 128, 0xAABBCCDD, 99);
+var header = new IpcFrameHeader(1, 7, 42, (uint)payload.Length,
+    SharedMemoryProtocol.ComputeCrc32(payload), 99);
 SharedMemoryProtocol.Write(headerBytes, header);
 var parsed = SharedMemoryProtocol.Read(headerBytes);
-Check(parsed == header, "Shared-memory header round-trips");
+Check(parsed == header && SharedMemoryProtocol.ValidatePayload(parsed, payload),
+    "Shared-memory header and CRC validation");
+
+var mappedPath = Path.Combine(Path.GetTempPath(), $"9circ-{Guid.NewGuid():N}.shm");
+try
+{
+    using (var mapped = new SharedMemoryRegion(mappedPath, 64))
+    {
+        mapped.Bytes[..4].CopyFrom(new byte[] { 9, 8, 7, 6 });
+        mapped.Flush();
+    }
+    using var reopened = new SharedMemoryRegion(mappedPath, 64);
+    Check(reopened.Bytes[..4].SequenceEqual(new byte[] { 9, 8, 7, 6 }),
+        "File-backed shared memory persists bytes across mappings");
+}
+finally
+{
+    if (File.Exists(mappedPath)) File.Delete(mappedPath);
+}
 
 var graph = new MotivationGraph();
 graph.AddNode("cluster");

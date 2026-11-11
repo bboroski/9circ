@@ -1,0 +1,104 @@
+name: 9circ-ci
+
+on:
+  push:
+    branches: [main, "9circ/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 9circ-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dotnet-build:
+    name: dotnet-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet build src/9circ.Api/9circ.Api.csproj --configuration Release
+
+  dotnet-smoke-tests:
+    name: dotnet-smoke-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet run --project tests/9circ.SmokeTests/9circ.SmokeTests.csproj --configuration Release
+
+  ruby-tests:
+    name: ruby-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+          working-directory: modules/lifecycle-ruby
+      - run: bundle exec ruby -Itest test/test_ninecirc.rb
+        working-directory: modules/lifecycle-ruby
+
+  swift-tests:
+    name: swift-tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - run: swift test --package-path modules/buffer-swift --configuration release
+
+  ipc-contract:
+    name: ipc-contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ruby -e 'require "./modules/lifecycle-ruby/lib/ninecirc/ipc_header"; h = NineCirc::IPCHeader.encode(type: 7, sequence: 42, payload_length: 128, crc32: 99, monotonic_nanoseconds: 123); abort "bad header" unless h.bytesize == 32 && NineCirc::IPCHeader.decode(h)[:sequence] == 42'
+
+  integration-stack:
+    name: integration-stack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --wait
+      - run: docker compose exec -T postgres pg_isready -U ninecirc -d ninecirc
+      - run: docker compose exec -T redis redis-cli -a 'dev-only-change-me' ping
+      - run: curl --fail http://localhost:6333/healthz
+      - if: always()
+        run: docker compose down -v
+
+  security-scan:
+    name: security-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet list src/9circ.Api/9circ.Api.csproj package --vulnerable --include-transitive
+
+  container-build:
+    name: container-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - run: docker build --tag ninecirc-api:ci .
+
+  docs-contract:
+    name: docs-contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: test -s README.md
+      - run: test -s docs/architecture.md
+      - run: test -s docs/ipc.md
+      - run: test -s migrations/postgres/001_initial_schema.sql

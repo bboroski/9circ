@@ -22,6 +22,10 @@ public static class HierarchicalClustering
             throw new ArgumentException("One or more caller-owned workspace spans are too small.");
 
         if (pointCount == 0) return 0;
+        foreach (var value in points[..matrixLength])
+            if (!float.IsFinite(value))
+                throw new ArgumentException("Input coordinates must be finite.", nameof(points));
+
         points[..matrixLength].CopyTo(centroids);
         sizes = sizes[..pointCount];
         labels = labels[..pointCount];
@@ -66,7 +70,8 @@ public static class HierarchicalClustering
 
             for (var axis = 0; axis < dimensions; axis++)
                 leftCentroid[axis] =
-                    ((leftCentroid[axis] * leftSize) + (rightCentroid[axis] * rightSize)) / totalSize;
+                    (float)(((double)leftCentroid[axis] * leftSize) +
+                            ((double)rightCentroid[axis] * rightSize)) / totalSize;
 
             sizes[bestLeft] = totalSize;
             active[bestRight] = 0;
@@ -92,7 +97,7 @@ public static class HierarchicalClustering
         double sum = 0;
         for (var axis = 0; axis < left.Length; axis++)
         {
-            var delta = left[axis] - right[axis];
+            var delta = (double)left[axis] - right[axis];
             sum += delta * delta;
         }
         return sum;

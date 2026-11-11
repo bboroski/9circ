@@ -51,7 +51,7 @@ try
 {
     using (var mapped = new SharedMemoryRegion(mappedPath, 64))
     {
-        mapped.Bytes[..4].CopyFrom(new byte[] { 9, 8, 7, 6 });
+        new byte[] { 9, 8, 7, 6 }.CopyTo(mapped.Bytes[..4]);
         mapped.Flush();
     }
     using var reopened = new SharedMemoryRegion(mappedPath, 64);

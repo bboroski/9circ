@@ -1,0 +1,11 @@
+# Build outputs
+.build/
+bin/
+obj/
+.bundle/
+vendor/bundle/
+coverage/
+.swiftpm/
+.DS_Store
+*.core
+*.dSYM/

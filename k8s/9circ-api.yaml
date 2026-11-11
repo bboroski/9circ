@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: 9circ-api
+  namespace: 9circ
+data:
+  ASPNETCORE_URLS: "http://+:8080"
+  ASPNETCORE_ENVIRONMENT: "Production"
+  NINECIRC_MAX_POINTS: "100000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 9circ-api
+  namespace: 9circ
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: 9circ-api
+  template:
+    metadata:
+      labels:
+        app: 9circ-api
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: ghcr.io/your-org/9circ-api:replace-with-release-tag
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: 9circ-api
+          env:
+            - name: ConnectionStrings__Postgres
+              valueFrom:
+                secretKeyRef:
+                  name: 9circ-runtime
+                  key: postgres
+                  optional: true
+            - name: Qdrant__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: 9circ-runtime
+                  key: qdrant-api-key
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "2"
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: 9circ-api
+  namespace: 9circ
+spec:
+  selector:
+    app: 9circ-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  type: ClusterIP

@@ -50,7 +50,9 @@ public sealed class QdrantVectorStore(HttpClient httpClient)
 
     public static HttpClient CreateClient(string endpoint, string? apiKey = null)
     {
-        var client = new HttpClient { BaseAddress = new Uri(endpoint, UriKind.Absolute), Timeout = TimeSpan.FromSeconds(15) };
+        ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
+        var normalizedEndpoint = endpoint.EndsWith("/", StringComparison.Ordinal) ? endpoint : endpoint + "/";
+        var client = new HttpClient { BaseAddress = new Uri(normalizedEndpoint, UriKind.Absolute), Timeout = TimeSpan.FromSeconds(15) };
         if (!string.IsNullOrWhiteSpace(apiKey))
             client.DefaultRequestHeaders.Add("api-key", apiKey);
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

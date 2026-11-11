@@ -1,6 +1,8 @@
+using NineCirc.Core.Buffers;
 using NineCirc.Core.Clustering;
 using NineCirc.Core.Creative;
 using NineCirc.Core.Ipc;
+using NineCirc.Core.Messaging;
 using NineCirc.Core.Motivation;
 using NineCirc.Core.Scaling;
 
@@ -79,5 +81,24 @@ var source = new ParsedSource(SourceLanguage.CSharp, new[]
     new SyntaxDeclaration("method", "LoadB", 21, 40, "return cache lookup document")
 });
 Check(CodeEvolutionPlanner.Suggest(source).Count == 1, "Creative planner emits review-only similarity proposals");
+
+using (var pooled = PooledBuffer<byte>.Rent(16))
+{
+    pooled.Span[0] = 0x9C;
+    Check(pooled.Memory.Span[0] == 0x9C, "Thread-safe pooled memory lease exposes bounded memory");
+}
+
+var dispatched = new List<int>();
+await using (var dispatcher = new AsyncEventDispatcher<int>(2, (value, _) =>
+{
+    dispatched.Add(value);
+    return ValueTask.CompletedTask;
+}))
+{
+    await dispatcher.PublishAsync(1);
+    await dispatcher.PublishAsync(2);
+    await dispatcher.CompleteAsync();
+}
+Check(dispatched.SequenceEqual(new[] { 1, 2 }), "Bounded asynchronous event dispatcher preserves order");
 
 Console.WriteLine("9circ smoke tests passed.");

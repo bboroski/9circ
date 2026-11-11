@@ -27,6 +27,24 @@ final class NineCircBufferTests: XCTestCase {
         XCTAssertEqual(ring.occupancy, 0)
     }
 
+    func testConcurrentWritersNeverExceedCapacity() throws {
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString).path
+        defer { try? FileManager.default.removeItem(atPath: path) }
+
+        let ring = try MappedRingBuffer(path: path, capacity: 1024)
+        let payload = [UInt8](repeating: 0xA5, count: 256)
+        DispatchQueue.concurrentPerform(iterations: 16) { _ in
+            _ = payload.withUnsafeBytes { ring.write($0) }
+        }
+
+        XCTAssertLessThanOrEqual(ring.occupancy, 1.0)
+        var output = [UInt8](repeating: 0, count: 1024)
+        let readCount = output.withUnsafeMutableBytes { ring.read(into: $0) }
+        XCTAssertEqual(readCount, 1024)
+        XCTAssertTrue(output.allSatisfy { $0 == 0xA5 })
+    }
+
     func testSharedIPCHeader() throws {
         let source = IPCHeader(type: 5, sequence: 0x102030405, payloadLength: 256,
                                crc32: 0xAABBCCDD, monotonicNanoseconds: 1234)

@@ -45,6 +45,29 @@ final class NineCircBufferTests: XCTestCase {
         XCTAssertTrue(output.allSatisfy { $0 == 0xA5 })
     }
 
+    func testZeroCopyMmapSegments() throws {
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString).path
+        defer { try? FileManager.default.removeItem(atPath: path) }
+
+        let ring = try MappedRingBuffer(path: path, capacity: 16)
+        let written = try ring.withWritableSegment { segment in
+            let payload = Array("zero-copy".utf8)
+            payload.withUnsafeBytes { source in
+                segment.baseAddress!.copyMemory(from: source.baseAddress!, byteCount: source.count)
+            }
+            return (payload.count, payload.count)
+        }
+        XCTAssertEqual(written, 9)
+
+        let read = try ring.withReadableSegment { segment in
+            let text = String(decoding: segment.bindMemory(to: UInt8.self), as: UTF8.self)
+            return (text, segment.count)
+        }
+        XCTAssertEqual(read, "zero-copy")
+        XCTAssertEqual(ring.occupancy, 0)
+    }
+
     func testSharedIPCHeader() throws {
         let source = IPCHeader(type: 5, sequence: 0x102030405, payloadLength: 256,
                                crc32: 0xAABBCCDD, monotonicNanoseconds: 1234)

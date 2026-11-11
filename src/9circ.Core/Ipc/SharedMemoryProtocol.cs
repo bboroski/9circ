@@ -47,4 +47,22 @@ public static class SharedMemoryProtocol
         BinaryPrimitives.WriteUInt32LittleEndian(destination[20..24], header.Crc32);
         BinaryPrimitives.WriteUInt64LittleEndian(destination[24..32], header.MonotonicNanoseconds);
     }
+
+    public static bool ValidatePayload(in IpcFrameHeader header, ReadOnlySpan<byte> payload)
+    {
+        if (payload.Length != header.PayloadLength) return false;
+        return ComputeCrc32(payload) == header.Crc32;
+    }
+
+    public static uint ComputeCrc32(ReadOnlySpan<byte> payload)
+    {
+        var crc = 0xFFFFFFFFu;
+        foreach (var value in payload)
+        {
+            crc ^= value;
+            for (var bit = 0; bit < 8; bit++)
+                crc = (crc & 1) != 0 ? (crc >> 1) ^ 0xEDB88320u : crc >> 1;
+        }
+        return ~crc;
+    }
 }

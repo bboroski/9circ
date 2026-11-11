@@ -1,1 +1,106 @@
-{"schema_version":"linguistic-heritage.letter.v1","id":"cyrl-ы","script":"Cyrillic","grapheme":"Ы","lowercase":"ы","name_ru":"еры","phoneme_profile":{"language":"Russian","broad_transcription":"/ɨ/","common_phone":"[ɨ]","description":"High central or retracted unrounded vowel; realization varies by speaker and context.","phonological_status":"Analyses differ: /i/ and /ɨ/ may be separate phonemes or contextually conditioned allophones."},"historical_graphics":{"widely_accepted_origin":"Cyrillic ligature combining yerъ (Ъ) and i (І or И), conventionally ЪІ / ЪИ.","attested_early_variant":"Ꙑ / ꙑ","modern_form":"Ы / ы","confidence":"high_for_ligature_relationship","dating":"Gradual development; no single invention year without a cited manuscript witness.","caution":"Graphic origin does not mean modern [ɨ] was mechanically created by combining the sounds of Ъ and І."},"historical_phonology":{"yer_note":"Old Church Slavonic ъ and ь represented reduced vowels; later outcomes depended on language, position and sound change.","caution":"Grapheme history and vowel history are related but distinct."},"comparative_slavic":{"polish_y":"Related high central/centralized vowel category, but realization and phonological pattern are not identical to Russian /ɨ/.","ukrainian_y":"Ukrainian и has its own phonetic and phonological profile; it is not an exact equivalent of Russian ы.","rule":"Shared transcription symbols do not establish identical pronunciation or direct letter-to-letter descent."},"orthographic_history":{"civil_script":"The Petrine civil-type reform of the early eighteenth century standardized printed letterforms; do not claim one decree created the exact modern glyph.","1917_1918_reform":"The reforms changed several orthographic conventions but did not abolish Ы.","transliteration":"Latin transliteration depends on the adopted standard; Y is not a universal phonetic equivalence."},"interpretive_layer":{"title":"Philosophy of the hard sign and the soft echo","status":"cultural_interpretation_not_historical_evidence","thesis":"The union of a hard-sign component and an i-component is a metaphor for graphic synthesis.","numerology":"16 + 10 = 26 is not an established etymological explanation; Ъ has no ordinary independent numeral value in the standard Cyrillic numeral system."},"claims_policy":{"separate_grapheme_history_from_sound_history":true,"label_hypotheses_and_metaphors":true,"require_primary_witness_for_exact_manuscript_dates":true,"do_not_infer_etymology_from_visual_similarity_alone":true,"do_not_claim_direct_greek_upsilon_descent":true},"references":[{"id":"ipa-russian-2015","title":"Russian","publisher":"Journal of the International Phonetic Association","url":"https://www.cambridge.org/core/journals/journal-of-the-international-phonetic-association/article/russian/55589EC639ADEF1764B5ECD0B76970FA"},{"id":"cavar-et-al-2025","title":"High central vowels in Polish, Ukrainian and Russian","publisher":"Journal of the International Phonetic Association","doi":"10.1017/S0025100325000040","url":"https://doi.org/10.1017/S0025100325000040"}]}
+{
+  "schema_version": "linguistic-heritage.letter.v1",
+  "id": "cyrl-ы",
+  "script": "Cyrillic",
+  "grapheme": "Ы",
+  "lowercase": "ы",
+  "name_ru": "еры",
+  "phoneme_profile": {
+    "language": "Russian",
+    "broad_transcription": "/ɨ/",
+    "common_phone": "[ɨ]",
+    "description": "High central or retracted unrounded vowel; realization varies by speaker and context.",
+    "phonological_status": "Analyses differ: /i/ and /ɨ/ may be separate phonemes or contextually conditioned allophones."
+  },
+  "historical_graphics": {
+    "widely_accepted_origin": "Cyrillic ligature combining yerъ (Ъ) and i (І or И), conventionally ЪІ / ЪИ.",
+    "attested_early_variant": "Ꙑ / ꙑ",
+    "modern_form": "Ы / ы",
+    "confidence": "high_for_ligature_relationship",
+    "dating": "Gradual development; no single invention year without a cited manuscript witness.",
+    "caution": "Graphic origin does not mean modern [ɨ] was mechanically created by combining the sounds of Ъ and І."
+  },
+  "historical_phonology": {
+    "yer_note": "Old Church Slavonic ъ and ь represented reduced vowels; later outcomes depended on language, position and sound change.",
+    "caution": "Grapheme history and vowel history are related but distinct."
+  },
+  "comparative_slavic": {
+    "polish_y": "Related high central/centralized vowel category, but realization and phonological pattern are not identical to Russian /ɨ/.",
+    "ukrainian_y": "Ukrainian и has its own phonetic and phonological profile; it is not an exact equivalent of Russian ы.",
+    "rule": "Shared transcription symbols do not establish identical pronunciation or direct letter-to-letter descent."
+  },
+  "orthographic_history": {
+    "civil_script": "The Petrine civil-type reform of the early eighteenth century standardized printed letterforms; do not claim one decree created the exact modern glyph.",
+    "1917_1918_reform": "The reforms changed several orthographic conventions but did not abolish Ы.",
+    "transliteration": "Latin transliteration depends on the adopted standard; Y is not a universal phonetic equivalence."
+  },
+  "interpretive_layer": {
+    "title": "Philosophy of the hard sign and the soft echo",
+    "status": "cultural_interpretation_not_historical_evidence",
+    "thesis": "The union of a hard-sign component and an i-component is a metaphor for graphic synthesis.",
+    "numerology": "16 + 10 = 26 is not an established etymological explanation; Ъ has no ordinary independent numeral value in the standard Cyrillic numeral system."
+  },
+  "claims_policy": {
+    "separate_grapheme_history_from_sound_history": true,
+    "label_hypotheses_and_metaphors": true,
+    "require_primary_witness_for_exact_manuscript_dates": true,
+    "do_not_infer_etymology_from_visual_similarity_alone": true,
+    "do_not_claim_direct_greek_upsilon_descent": true
+  },
+  "references": [
+    {
+      "id": "ipa-russian-2015",
+      "title": "Russian",
+      "publisher": "Journal of the International Phonetic Association",
+      "url": "https://www.cambridge.org/core/journals/journal-of-the-international-phonetic-association/article/russian/55589EC639ADEF1764B5ECD0B76970FA"
+    },
+    {
+      "id": "cavar-et-al-2025",
+      "title": "High central vowels in Polish, Ukrainian and Russian",
+      "publisher": "Journal of the International Phonetic Association",
+      "doi": "10.1017/S0025100325000040",
+      "url": "https://doi.org/10.1017/S0025100325000040"
+    }
+  ],
+  "glyph": "Ы",
+  "unicode": {
+    "uppercase": "U+042B",
+    "lowercase": "U+044B"
+  },
+  "claims": [
+    {
+      "id": "yeri-ligature",
+      "statement": "The Cyrillic letter Ы is conventionally explained as a ligature of yerъ (Ъ) and i (І/И).",
+      "status": "established",
+      "rationale": "The graphic genealogy is widely described as a ligature; exact manuscript chronology still requires palaeographic evidence.",
+      "sources": [
+        "https://www.newworldencyclopedia.org/entry/Cyrillic_script"
+      ]
+    },
+    {
+      "id": "phoneme-realization",
+      "statement": "Modern Russian Ы commonly represents /ɨ/ with a high central or retracted unrounded realization.",
+      "status": "qualified",
+      "rationale": "The phonological analysis and precise realization vary across scholarly accounts and speakers.",
+      "sources": [
+        "https://www.cambridge.org/core/journals/the-international-phonetic-association/article/russian/55589EC639ADEF1764B5ECD0B76970FA"
+      ]
+    },
+    {
+      "id": "slavic-equivalence",
+      "statement": "Russian ы, Polish y and Ukrainian и are identical sounds.",
+      "status": "unsupported",
+      "rationale": "Comparative articulatory work describes differences in realization and phonological pattern.",
+      "sources": [
+        "https://doi.org/10.1017/S0025100325000040"
+      ]
+    },
+    {
+      "id": "numerological-26",
+      "statement": "The letter's etymology is explained by a numerological sum of 26.",
+      "status": "unsupported",
+      "rationale": "This is a cultural interpretation, not an established historical or etymological account.",
+      "sources": []
+    }
+  ]
+}

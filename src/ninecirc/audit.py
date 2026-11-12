@@ -76,14 +76,22 @@ def scan_repository(repository_path: str | os.PathLike[str], *, max_files: int =
             if len(sample_paths) < 40:
                 sample_paths.append(relative)
 
+            parts = {part.lower() for part in path.relative_to(root).parts}
+            lower_name = filename.lower()
+            is_test_file = (
+                "test" in parts
+                or "tests" in parts
+                or lower_name.startswith("test_")
+                or ".test." in lower_name
+                or ".spec." in lower_name
+            )
+
             language = SOURCE_EXTENSIONS.get(path.suffix.lower())
-            if language:
+            if language and not is_test_file:
                 source_count += 1
                 languages[language] += 1
 
-            parts = {part.lower() for part in path.relative_to(root).parts}
-            lower_name = filename.lower()
-            if "test" in parts or "tests" in parts or lower_name.startswith("test_") or ".test." in lower_name or ".spec." in lower_name:
+            if is_test_file:
                 test_count += 1
             if "docs" in parts or lower_name.startswith(("readme", "contributing")):
                 doc_count += 1

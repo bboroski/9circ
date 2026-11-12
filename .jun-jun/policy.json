@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "system": "Jun-Jun",
+  "repository": "9circ",
+  "project_role": "unclassified",
+  "operating_mode": "observation-only",
+  "safety": {
+    "read_only": true,
+    "auto_fix": false,
+    "auto_merge": false,
+    "auto_release": false,
+    "execute_remote_code": false,
+    "print_secret_values": false
+  },
+  "invariants": [
+    "Start in observation-only mode until purpose, languages and validation commands are documented.",
+    "Never claim a check passed unless it actually ran."
+  ],
+  "checks": {
+    "tracked_source_inventory": true,
+    "high_confidence_secret_markers": true,
+    "merge_conflict_markers": true
+  },
+  "exclusions": [
+    "binary files",
+    "files larger than 2 MB",
+    "untracked files"
+  ],
+  "on_finding": "Fail CI; report file and line only; never modify source.",
+  "future_modules": {
+    "p2p_gossip": false,
+    "shared_threat_memory": false,
+    "ast_behavioral_analysis": false,
+    "auto_healer": false,
+    "artifact_signing": false,
+    "requires_separate_review": true
+  }
+}

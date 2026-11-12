@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "standard_id": "PERSONA-ENG-STD",
+  "repository": "bboroski/9circ",
+  "project": {
+    "domain": "Undocumented repository; discovery required",
+    "mission": "No product mission can yet be established from the inspected repository contents. Define purpose and intended users before architecture or implementation changes.",
+    "maturity": "discovery-required"
+  },
+  "architecture": {
+    "preserve_existing_boundaries": true,
+    "primary_technologies": [
+      "Not established from inspected repository evidence"
+    ],
+    "explicit_non_goals": [
+      "Do not infer a product domain or technology stack from the repository name",
+      "Do not introduce an architecture or codebase before purpose and constraints are documented"
+    ]
+  },
+  "safety_boundaries": [
+    "Treat product purpose, users, data, and runtime as unknown until documented and reviewed.",
+    "Do not add dependencies, executable workflows, application code, or external integrations without an approved project scope.",
+    "Preserve the current repository contents while discovery is incomplete."
+  ],
+  "native_validation": {
+    "status": "discovery-required",
+    "commands": [],
+    "evidence_note": "The inspected root README contains only the repository heading; no build or test command is documented."
+  },
+  "required_gates": [
+    "profile-validation",
+    "native-project-checks",
+    "architecture-and-compatibility-review",
+    "security-and-privacy-review",
+    "documentation-review",
+    "human-review",
+    "target-qualification-when-applicable"
+  ],
+  "merge_policy": {
+    "pull_request_required": true,
+    "direct_main_push_policy": "enforce-with-branch-rules",
+    "bypass_required_checks": false,
+    "release_requires_separate_qualification": true
+  },
+  "status_vocabulary": [
+    "PROPOSED",
+    "PLANNED",
+    "IMPLEMENTED",
+    "TESTED",
+    "VERIFIED",
+    "MERGED",
+    "RELEASED",
+    "BLOCKED"
+  ]
+}

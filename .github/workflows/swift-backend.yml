@@ -1,0 +1,35 @@
+name: 9circ Swift backend
+
+on:
+  push:
+    paths:
+      - "swift-backend/**"
+      - ".github/workflows/swift-backend.yml"
+  pull_request:
+    paths:
+      - "swift-backend/**"
+      - ".github/workflows/swift-backend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swift-backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swift-test:
+    runs-on: ubuntu-latest
+    container: swift:6.0-jammy
+    defaults:
+      run:
+        working-directory: swift-backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve dependencies
+        run: swift package resolve
+      - name: Build
+        run: swift build -c release
+      - name: Test
+        run: swift test

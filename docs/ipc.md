@@ -1,0 +1,25 @@
+# 9circ shared-memory IPC v1
+
+All language runtimes use the same 32-byte little-endian metadata header. The payload starts immediately after the header and is kept in shared memory.
+
+| Offset | Size | Field | Meaning |
+|---:|---:|---|---|
+| 0 | 4 | magic | ASCII 9CIR |
+| 4 | 2 | version | 1 |
+| 6 | 2 | type | Message type |
+| 8 | 8 | sequence | Monotonic producer sequence |
+| 16 | 4 | payload_length | Number of payload bytes |
+| 20 | 4 | crc32 | CRC-32 of payload |
+| 24 | 8 | monotonic_ns | Producer monotonic timestamp |
+
+The header is intentionally fixed width and does not contain pointers. Receivers must validate magic, version, payload length against mapped capacity, sequence ordering and CRC-32 before exposing payload bytes. C# implements the header codec, CRC-32 validation and a file-backed MemoryMappedFile view; Swift and Ruby implement matching header codecs.
+
+## Ownership and synchronization
+
+The producer owns a slot until the consumer acknowledges its sequence. A slot may not be overwritten while leased by a consumer. Use process-shared atomics or a platform-supported process-shared synchronization primitive around slot state; language-local mutexes alone do not synchronize separate processes.
+
+The Swift ring buffer currently serializes access within one process with NSLock. C# can map the same file through SharedMemoryRegion, but the read/write indexes and slot ownership are not yet stored in a process-shared control block. Before using it as a multi-process queue, add a process-shared synchronization implementation and crash recovery for abandoned slots. The current ring buffer is not advertised as cross-process lock-free.
+
+## Compatibility
+
+A breaking field change requires a new header version. Readers must reject unknown versions instead of guessing. Keep payload endianness and numeric encoding specified per message type. The initial v1 codec carries only metadata and does not serialize payload vectors.

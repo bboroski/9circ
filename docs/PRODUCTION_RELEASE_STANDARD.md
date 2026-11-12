@@ -1,8 +1,8 @@
 # Production Release Standard
 
-**Repository:** bboroski/9circ  
-**Default branch:** `main`  
-**Project profile:** Minimal repository scaffold; root inventory contains only a small README and no build/test manifest or workflow  
+**Repository:** bboroski/9circ
+**Default branch:** `main`
+**Project profile:** Minimal repository scaffold; root inventory contains only a small README and no build/test manifest or workflow
 **Existing workflow inventory:** 0 workflow file(s) were visible at the time this baseline was prepared.
 
 ## Purpose and scope

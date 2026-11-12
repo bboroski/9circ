@@ -1,0 +1,42 @@
+name: Jun-Jun Governance Policy Validation
+on:
+  push:
+    branches: ["**"]
+    paths: [".jun-jun/governance.json", "JUNJUN-GOVERNANCE.md", ".github/workflows/jun-jun-governance.yml"]
+  pull_request:
+    paths: [".jun-jun/governance.json", "JUNJUN-GOVERNANCE.md", ".github/workflows/jun-jun-governance.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: jun-jun-governance-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Validate governance contract
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path(".jun-jun/governance.json").read_text(encoding="utf-8"))
+          d = Path("JUNJUN-GOVERNANCE.md").read_text(encoding="utf-8")
+          required = {"schema_version","system","repository","profile","operating_mode","principles","prohibited_automated_actions","controls","risk_levels","integration","validation"}
+          assert required <= p.keys(), "missing governance keys"
+          assert p["schema_version"] == 1 and p["system"] == "Jun-Jun"
+          assert p["operating_mode"] == "observation-only"
+          for key in ("auto_merge","auto_release","automated_enforcement"):
+              assert p["integration"].get(key) is False, key + " must remain disabled"
+          for key in ("human_review_required_for_adverse_decisions","independent_appeal_path_required","audit_log_must_be_append_only","secrets_must_never_be_logged"):
+              assert p["controls"].get(key) is True, key + " safeguard required"
+          for heading in ("## 1. Mission","## 4. Constitutional engineering principles","## 5. Prohibited behavior","## 6. Evidence and finding format","## 8. Governance and change control","## 9. Privacy, retention, and appeals","## 11. What a passing check means"):
+              assert heading in d, "missing charter section: " + heading
+          print("Jun-Jun governance policy validation passed; no application certification implied.")
+          PY

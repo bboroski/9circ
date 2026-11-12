@@ -1,0 +1,34 @@
+{
+  "$schema": "https://github.com/bboroski/Hellduck/blob/main/apps/staas/schemas/repository-manifest.schema.json",
+  "schema_version": "staas.repository.v1",
+  "repository": {
+    "id": "9circ",
+    "name": "9circ",
+    "full_name": "bboroski/9circ",
+    "role": "Unclassified repository; STaas limits access to inventory and contract validation pending owner classification",
+    "runtime": [],
+    "maturity": "unclassified"
+  },
+  "protocol": {
+    "id": "staas.cross-repository.v1",
+    "version": "1.0.0"
+  },
+  "capabilities": {
+    "discovery": true,
+    "health_checks": true,
+    "reconciliation_plan": true,
+    "automatic_deployment": false
+  },
+  "policy": {
+    "secret_storage": "os-keyring",
+    "execute_repository_code": false,
+    "write_without_approval": false,
+    "export_secrets": false
+  },
+  "providers": [],
+  "tags": [
+    "saas-integration",
+    "metadata-first",
+    "unclassified"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "nun.auto-improvement.repository.v1",
+  "repository": "bboroski/9circ",
+  "domain": "polyglot-research-and-computation",
+  "role": "polyglot-validation-and-research-evidence",
+  "capabilities": [
+    "repository-inventory",
+    "dotnet-build-and-test-evidence",
+    "swift-package-validation-evidence",
+    "ruby-test-evidence",
+    "research-data-provenance-review",
+    "ternary-matrix-generation"
+  ],
+  "policy": {
+    "mode": "proposal-first",
+    "automatic_actions": [
+      "inventory",
+      "read",
+      "analyze",
+      "collect-declared-check-results",
+      "generate-matrix",
+      "validate-matrix"
+    ],
+    "approval_required": [
+      "write-files",
+      "change-public-apis",
+      "change-language-runtime-configuration",
+      "install-software",
+      "publish-artifacts",
+      "merge-pull-request"
+    ],
+    "guardrails": "Preserve the repository's polyglot boundaries, language-specific toolchains, ABI contracts, package identities, research provenance, licenses and Git history. Never infer a successful build or test from missing evidence."
+  },
+  "matrix": {
+    "model": "ternary-three-stage",
+    "stages": [
+      "S1-observe-and-baseline",
+      "S2-propose-and-validate",
+      "S3-approve-and-apply"
+    ],
+    "states": [
+      "-1=regression-or-block",
+      "0=unknown-or-no-change",
+      "1=verified-improvement"
+    ],
+    "evidence_required": true,
+    "rollback_plan_required": true
+  },
+  "protocol": {
+    "version": "1.0.0",
+    "transport": "local-files-and-versioned-json",
+    "no_remote_code_execution": true
+  }
+}

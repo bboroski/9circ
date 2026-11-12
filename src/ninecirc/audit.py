@@ -48,13 +48,23 @@ def scan_repository(repository_path: str | os.PathLike[str], *, max_files: int =
     ci_configs: set[str] = set()
     security_policy = license_file = readme_defined = False
     sample_paths: list[str] = []
+    scan_errors: list[str] = []
     truncated = False
 
-    for current, directories, filenames in os.walk(root, topdown=True, followlinks=False):
+    def record_scan_error(error: OSError) -> None:
+        scan_errors.append(str(error.filename or error))
+
+    for current, directories, filenames in os.walk(
+        root, topdown=True, followlinks=False, onerror=record_scan_error
+    ):
         current_path = Path(current)
         depth = len(current_path.relative_to(root).parts)
+        directories.sort()
+        filenames.sort()
         directories[:] = [name for name in directories if name not in IGNORED_DIRS and not (current_path / name).is_symlink()]
         if depth >= max_depth:
+            if directories:
+                truncated = True
             directories[:] = []
 
         for filename in filenames:
@@ -97,7 +107,16 @@ def scan_repository(repository_path: str | os.PathLike[str], *, max_files: int =
         if truncated:
             break
 
+    if scan_errors:
+        truncated = True
+
     findings: list[dict[str, str]] = []
+    if scan_errors:
+        findings.append({
+            "severity": "REVIEW",
+            "title": "Some folders could not be inspected",
+            "detail": f"{len(scan_errors)} filesystem access error(s) occurred; the inventory is incomplete.",
+        })
     if source_count == 0:
         findings.append({"severity": "INFO", "title": "No source files detected",
                          "detail": "This can be valid for a documentation or research repository; confirm its intended role."})
@@ -129,7 +148,8 @@ def scan_repository(repository_path: str | os.PathLike[str], *, max_files: int =
         "languages": dict(languages.most_common()), "manifests": sorted(manifests),
         "ci_configs": sorted(ci_configs), "has_security_policy": security_policy,
         "has_license": license_file, "readme_defined": readme_defined,
-        "truncated": truncated, "sample_paths": sample_paths, "findings": findings,
+        "truncated": truncated, "sample_paths": sample_paths,
+        "scan_errors": scan_errors, "findings": findings,
     }
 
 

@@ -1,71 +1,91 @@
 # 9circ
 
-9circ is a three-runtime code/data processing platform built around C# core services, a Swift memory-mapped I/O layer and a Ruby native-component lifecycle manager.
+**9circ is a polyglot platform for bounded data processing and controlled improvement.** Its native foundation combines a .NET core, Swift memory-mapped I/O, and Ruby FFI lifecycle management. A separate Swift 6 service provides an independently deployable HTTP boundary.
 
-## Repository layout
+Each runtime has an explicit responsibility and test boundary. No single language, build system, or release process is imposed on every module.
 
-- src/9circ.Core — allocation-aware clustering, interpolation, motivation graph, IPC codec, telemetry, PostgreSQL/Qdrant/Redis adapters and corpus interfaces.
-- src/9circ.Api — bounded HTTP entry points for clustering, motivation graph management/feedback and health checks.
-- modules/buffer-swift — mmap-backed ring buffer and direct POSIX read/write helpers.
-- modules/lifecycle-ruby — FFI native module loader, lease-based hot reload and IPC v1 codec.
-- tests/9circ.SmokeTests — dependency-light C# smoke tests.
-- migrations/postgres — document, artifact-manifest and motivation-event tables.
-- docker-compose.yml — local PostgreSQL, Qdrant and Redis services.
-- k8s — hardened API Deployment and Service example.
-- .github/workflows — multi-language CI and main-branch container publication to GHCR.
+## Capabilities
+
+- **C# / .NET:** allocation-aware DBSCAN and hierarchical clustering, feature interpolation, motivation graph and diagnostics, bounded event dispatch, buffer leases, and storage adapters.
+- **Swift 6:** file-backed mmap ring buffer, IPC header codec, and POSIX read/write adapters.
+- **Ruby:** FFI component loading, ABI validation, initialize-before-swap hot reload, and lease-based retirement.
+- **Services and storage:** .NET API, separate Swift/Vapor health service, PostgreSQL, Qdrant, Redis, and in-memory cache adapters.
+- **Delivery:** multi-language CI, container build, Compose stack, Kubernetes examples, and release workflow.
+
+Adapters and deployment templates do not mean external services are production-configured. See [known limitations](#safety-and-known-limitations).
+
+## Architecture
+
+| Area | Path | Responsibility |
+|---|---|---|
+| Core | `src/9circ.Core` | Clustering, motivation, IPC, corpus, storage, telemetry |
+| .NET API | `src/9circ.Api` | Bounded HTTP endpoints |
+| Swift I/O | `modules/buffer-swift` | mmap ring buffer and POSIX adapters |
+| Ruby lifecycle | `modules/lifecycle-ruby` | FFI loading, ABI checks, component replacement |
+| Swift service | `swift-backend/` | Separate Swift 6 / Vapor health API |
+| Tests | `tests/`, module test folders | Smoke, contract, language-specific tests |
+| Operations | `docs/`, `migrations/`, `k8s/` | IPC, security, operations, schema, deployment examples |
+
+IPC v1 uses a 32-byte little-endian header with CRC-32; see [docs/ipc.md](docs/ipc.md). The Swift ring-buffer lock protects threads within one process, not inter-process synchronization or crash recovery.
 
 ## Requirements
 
-- .NET SDK 10.0.100 or a compatible 10.0 feature-band SDK.
-- Ruby 3.4 with Bundler.
-- Swift 6 toolchain.
-- Docker Engine with Compose v2.
+- .NET SDK **10.0.100** (or compatible 10.0 feature-band SDK)
+- Ruby **3.4** with Bundler
+- Swift **6**
+- Docker Engine and Docker Compose v2 for the local service stack
 
-## Local development
+## Quick start
 
-Copy .env.example to .env and replace the local development credentials, then start dependencies:
+1. Copy `.env.example` to `.env` and replace the development credentials.
+2. Start local dependencies:
 
-    docker compose up -d --wait
+   ```sh
+   docker compose up -d --wait
+   ```
 
-Build and run the API:
+3. Build and run the .NET API:
 
-    dotnet build src/9circ.Api/9circ.Api.csproj -c Release
-    dotnet run --project src/9circ.Api/9circ.Api.csproj
+   ```sh
+   dotnet build src/9circ.Api/9circ.Api.csproj -c Release
+   dotnet run --project src/9circ.Api/9circ.Api.csproj
+   ```
 
-Run C# smoke checks:
+4. Run language checks:
 
-    dotnet run --project tests/9circ.SmokeTests/9circ.SmokeTests.csproj -c Release
+   ```sh
+   dotnet run --project tests/9circ.SmokeTests/9circ.SmokeTests.csproj -c Release
+   swift test --package-path modules/buffer-swift
+   cd modules/lifecycle-ruby
+   bundle install
+   bundle exec ruby -Itest test/test_ninecirc.rb
+   ```
 
-Run Swift tests:
+The .NET API exposes `GET /healthz`, `GET /readyz`, `POST /api/v1/clusters`, and motivation graph/feedback endpoints under `/api/v1/motivation`. Clustering accepts a flat row-major float matrix, dimensions, epsilon, and `minPoints`.
 
-    swift test --package-path modules/buffer-swift
+The separate Swift service exposes `GET /health`, `GET /ready`, and `GET /v1/health`. Its readiness endpoint currently reports process readiness only.
 
-Run Ruby tests:
+## CI and delivery
 
-    cd modules/lifecycle-ruby
-    bundle install
-    bundle exec ruby -Itest test/test_ninecirc.rb
+CI covers .NET, Ruby, Swift, IPC, integration-stack, vulnerability, container, and documentation checks. The latest reported implementation-foundation .NET and Swift-service workflow runs succeeded; check the current PR head and required checks before merging.
 
-The API exposes GET /healthz, GET /readyz, POST /api/v1/clusters, GET /api/v1/motivation, POST /api/v1/motivation/nodes, POST /api/v1/motivation/dependencies and POST /api/v1/motivation/feedback. The clustering endpoint accepts a flat row-major float matrix, dimensions, epsilon and minPoints.
+The release workflow can publish a container image to GHCR. This is **not** a production Kubernetes deployment; no production cluster or credentials are assumed.
 
-## Runtime contracts
+## Safety and known limitations
 
-The shared IPC header is 32 bytes, little-endian, version 1. Its field layout and synchronization requirements are defined in docs/ipc.md. The metadata codec is implemented in C#, Swift and Ruby. Cross-process locking and crash recovery are not yet implemented by the Swift ring buffer; its current lock protects threads in one process only.
+- Imported/generated source is never executed or automatically applied. Refactor suggestions remain review-only.
+- No autonomous source rewriting, privileged OS changes, or automatic production merge is enabled.
+- Authentication, production TLS, secret-manager integration, dependency health probes, and production observability need deployment-specific work.
+- Cross-process ring-buffer locking and abandoned-lease recovery are not implemented.
+- Concrete Tree-sitter grammars, production embedding providers, eBPF probes, generated-code sandboxing, signed artifact promotion, and production-cluster operations are not complete.
+- Compose credentials are local-development only; never reuse them in production.
 
-The C# DBSCAN routine accepts caller-owned spans for labels, visited flags, queue and queued flags. It avoids managed allocations in its clustering hot path. The agglomerative centroid engine also uses caller-owned workspace. Both algorithms are CPU-bound; DBSCAN has quadratic worst-case work and API request limits are enforced.
+Review [docs/security.md](docs/security.md), [docs/operations.md](docs/operations.md), and [docs/architecture.md](docs/architecture.md) before deployment.
 
-Ruby hot reload initializes a candidate before swapping it into service. Existing leases keep the previous component callable until released. Native shared-library unmapping is controlled by the FFI runtime/GC and is not promised to happen immediately.
+## Project status
 
-## Integration boundaries and non-goals of this foundation
+Foundation development is ongoing. A capability is implemented only when code, tests, workflow evidence, and its operational boundary support that claim. A green workflow validates only the jobs it ran; it is not production qualification.
 
-Concrete Tree-sitter grammar bindings for all three languages, a production embedding model adapter, eBPF kernel probes, a sandbox execution service for generated code, a cross-process lock-free queue, OpenTelemetry exporters/collector configuration, signed artifact publication, production secret injection and an operational production cluster are not included yet. Interfaces, schemas, documentation or deployment templates may be present for those follow-up integrations, but they must not be treated as production-complete.
+## License
 
-Generated code is never executed or applied automatically. Refactor suggestions are review-only until a disposable sandbox evaluator and approval gate are installed.
-
-## CI/CD
-
-Pull requests and pushes run the .NET, Ruby, Swift, IPC, integration-stack, vulnerability, container and documentation checks. Merges to main publish a multi-architecture API image to ghcr.io/bboroski/9circ-api with commit-addressed and latest tags, plus SBOM/provenance metadata. This publishes an image; it does not deploy to a production Kubernetes cluster. A cluster endpoint and deployment credentials have not been supplied.
-
-## Security
-
-Do not use the development credentials from docker-compose.yml in production. Use a secret manager, enable authentication/TLS for data services, restrict network exposure and deploy signed images by immutable digest. Review docs/security.md and docs/operations.md before deployment.
+No license is declared yet. Add an explicit license before distributing the software or granting third parties reuse rights.

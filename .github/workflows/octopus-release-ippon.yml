@@ -1,0 +1,35 @@
+name: Octopus Ippon Release — 9circ Bootstrap Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require a real project definition before release
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s README.md
+          if [ "$(wc -c < README.md)" -le 100 ]; then
+            echo "::error::9circ currently contains only a placeholder README. Define project purpose, license, source tree, build and test commands before release."
+            exit 1
+          fi
+          if ! find . -type f \( -name '*.c' -o -name '*.h' -o -name '*.cpp' -o -name '*.rs' -o -name '*.py' -o -name '*.js' -o -name '*.ts' -o -name '*.go' -o -name '*.html' -o -name '*.swift' \) -not -path './.git/*' | grep -q .; then
+            echo "::error::No project source files found; refusing to publish an empty release."
+            exit 1
+          fi
+          if [ ! -f LICENSE ] && [ ! -f LICENSE.md ] && [ ! -f COPYING ]; then
+            echo "::error::A declared license is required before distribution."
+            exit 1
+          fi
+          echo "Readiness gate passed. Add a project-specific build/test/release workflow before enabling publication."

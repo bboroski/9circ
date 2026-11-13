@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "ecosystem": "SAMBU",
+  "module_id": "nine-circ-unclassified",
+  "repository": "bboroski/9circ",
+  "display_name": "9circ",
+  "role": "unclassified-project-pending-owner-scope-and-source-inventory",
+  "runtime": [
+    "unknown"
+  ],
+  "maturity": "unknown",
+  "provides": [],
+  "consumes": [],
+  "dependencies": [],
+  "boundaries": [
+    "Project purpose and implementation are not established by the current repository contents.",
+    "No dependency, runtime integration, security property, or capability is inferred from the repository name.",
+    "Classification and adapter contracts require project documentation and source evidence."
+  ],
+  "verification": {
+    "host_tests": "No build or test procedure is currently documented; metadata contract validation only.",
+    "target_validation": "Unknown; requires project scope and target identification.",
+    "evidence": [
+      "README.md"
+    ]
+  }
+}

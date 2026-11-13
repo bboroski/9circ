@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "architecture": "NUN Mesh Multi-Axis Layer Fabric (MALF)",
+  "repository": "bboroski/9circ",
+  "role": "Unassigned repository placeholder; no product behavior has been evidenced.",
+  "maturity": "README-only placeholder; all layers intentionally unassigned.",
+  "layers": [
+    {
+      "id": "L0",
+      "name": "Experience",
+      "responsibility": "Portal, workspace navigation, CLI and maintainer workflows."
+    },
+    {
+      "id": "L1",
+      "name": "Contracts",
+      "responsibility": "Repository/module manifests, schemas, APIs, migration metadata and cross-repo protocols."
+    },
+    {
+      "id": "L2",
+      "name": "Workspace orchestration",
+      "responsibility": "Workspace verification, migration audits, dependency resolution and integration workflows."
+    },
+    {
+      "id": "L3",
+      "name": "Ecosystem domain",
+      "responsibility": "Module identity, ownership, roles, compatibility, release state and dependency graph."
+    },
+    {
+      "id": "L4",
+      "name": "Governance and policy",
+      "responsibility": "Maturity/evidence rules, licensing boundaries, source provenance and integration approval."
+    },
+    {
+      "id": "L5",
+      "name": "Integration ports",
+      "responsibility": "Repository, artifact, registry, build and verification contracts."
+    },
+    {
+      "id": "L6",
+      "name": "Adapters and source modules",
+      "responsibility": "Imported module snapshots and controlled tooling adapters."
+    },
+    {
+      "id": "L7",
+      "name": "Workspace state",
+      "responsibility": "Source snapshots, registry, manifests, migration records and verification outputs."
+    },
+    {
+      "id": "L8",
+      "name": "Build and delivery",
+      "responsibility": "Workspace composition, static portal, CI and publication."
+    },
+    {
+      "id": "L9",
+      "name": "Assurance",
+      "responsibility": "Migration verification, contract tests, per-module tests and provenance checks."
+    }
+  ],
+  "placement": [
+    {
+      "layer": "L0",
+      "area": "Experience",
+      "components": []
+    },
+    {
+      "layer": "L1",
+      "area": "Contracts",
+      "components": []
+    },
+    {
+      "layer": "L2",
+      "area": "Workspace orchestration",
+      "components": []
+    },
+    {
+      "layer": "L3",
+      "area": "Ecosystem domain",
+      "components": []
+    },
+    {
+      "layer": "L4",
+      "area": "Governance and policy",
+      "components": []
+    },
+    {
+      "layer": "L5",
+      "area": "Integration ports",
+      "components": []
+    },
+    {
+      "layer": "L6",
+      "area": "Adapters and source modules",
+      "components": []
+    },
+    {
+      "layer": "L7",
+      "area": "Workspace state",
+      "components": []
+    },
+    {
+      "layer": "L8",
+      "area": "Build and delivery",
+      "components": []
+    },
+    {
+      "layer": "L9",
+      "area": "Assurance",
+      "components": []
+    }
+  ],
+  "vertical_slices": [
+    {
+      "id": "slice-1",
+      "title": "Scope definition",
+      "flow": "Owner intent → product problem → non-goals → target users → explicit maturity and evidence baseline."
+    },
+    {
+      "id": "slice-2",
+      "title": "First vertical slice",
+      "flow": "After scope approval: one user-visible capability → domain rule → port/adapter → result/state → automated test."
+    }
+  ],
+  "portfolio_repositories": [
+    "SAMBU",
+    "ToolNG",
+    "ReaperCripple",
+    "Kloz",
+    "CO",
+    "SaintSI",
+    "Klipot",
+    "NUN",
+    "NUNLauncher",
+    "Fragile-Baby",
+    "Luci",
+    "Hellduck",
+    "9circ",
+    "BlopScore",
+    "Jungelist-Massive"
+  ],
+  "dependency_rules": [
+    "workspace-consumes-versioned-module-contracts",
+    "imported-module-does-not-depend-on-workspace-internals",
+    "source-snapshot-retains-provenance-and-license",
+    "module-and-workspace-test-results-reported-separately",
+    "cross-module-coupling-only-through-explicit-adapters"
+  ],
+  "cross_cutting": [
+    "source-provenance",
+    "license-and-notice-governance",
+    "security-and-trust",
+    "compatibility",
+    "independent-assurance",
+    "upstream-divergence-tracking"
+  ],
+  "guardrails": "Do not infer a product identity, stack, runtime or feature set from the repository name. Keep code generation and runtime decisions blocked until scope and acceptance criteria are documented. Do not add boilerplate frameworks merely to make the repository look populated.",
+  "status_note": "Portfolio map describes accessible repositories and intended roles; it does not imply all modules are integrated in this workspace."
+}

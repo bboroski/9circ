@@ -1,0 +1,46 @@
+name: Federation adapter contracts
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate manifests and adapter declarations
+        env:
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(".")
+          manifest = json.loads((root / "sambu.module.json").read_text(encoding="utf-8"))
+          adapters = json.loads((root / "ecosystem/adapter-contracts.json").read_text(encoding="utf-8"))
+          expected = os.environ["EXPECTED_REPOSITORY"]
+          required = {"schema_version","ecosystem","module_id","repository","display_name","role","runtime","maturity","provides","consumes","dependencies","boundaries"}
+          assert required <= manifest.keys(), f"missing manifest keys: {sorted(required - manifest.keys())}"
+          assert manifest["schema_version"] == 1 and manifest["ecosystem"] == "SAMBU"
+          assert manifest["repository"] == expected, (manifest["repository"], expected)
+          assert adapters["schema_version"] == "jm.adapter-contracts.v1"
+          assert adapters["repository"] == expected and adapters["module_id"] == manifest["module_id"]
+          ids, providers = set(), set()
+          for contract in adapters["contracts"]:
+              assert contract["id"] not in ids, f"duplicate contract: {contract['id']}"
+              ids.add(contract["id"])
+              assert contract["status"] in {"implemented","adapter-ready","specified","planned","unknown"}
+              if contract.get("provider_module_id"): providers.add(contract["provider_module_id"])
+              for path in contract.get("local_paths", []):
+                  assert (root / path).exists(), f"declared local adapter path missing: {path}"
+              if contract["status"] == "implemented":
+                  assert contract.get("local_paths"), f"implemented contract has no local evidence path: {contract['id']}"
+          for dependency in manifest["dependencies"]:
+              assert dependency["module_id"] in providers, f"dependency lacks matching adapter contract: {dependency['module_id']}"
+          print(f"Validated {expected}: {len(ids)} adapter contracts, {len(manifest['dependencies'])} declared dependencies")
+          PY

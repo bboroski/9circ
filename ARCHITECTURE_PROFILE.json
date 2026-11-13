@@ -1,0 +1,36 @@
+{
+  "schema_version": "bboroski.modular-monolith-profile.v1",
+  "project": "9circ",
+  "maturity": "scaffold-only",
+  "architecture": {
+    "mode": "scaffold",
+    "scope": "Repository placeholder with a minimal README; product runtime, API surface and build target are not yet evidenced.",
+    "runtime_boundary": "No application runtime or executable composition is confirmed.",
+    "composition_rule": "Establish product scope, interfaces, build system and tests before composing this project into a larger runtime."
+  },
+  "entrypoints": [],
+  "components": [],
+  "dependencies": [],
+  "preserved_boundaries": [
+    "Do not infer implementation from repository name or design references.",
+    "Any future integration must begin with an owned API and testable evidence."
+  ],
+  "forbidden_composition": [
+    "No fabricated runtime, IPC implementation or performance claims.",
+    "No implicit links to other projects."
+  ],
+  "build_profiles": [
+    {
+      "id": "metadata-only",
+      "status": "not-yet-verified",
+      "commands": [],
+      "evidence": [
+        "README.md"
+      ]
+    }
+  ],
+  "gaps": [
+    "Define product purpose and non-goals.",
+    "Add an implementation skeleton, build instructions, tests and a versioned module contract."
+  ]
+}
